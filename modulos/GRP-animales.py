@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-class animales(commands.GroupCog, name="animales"):
+class animales(commands.GroupCog, name="animales", description="Envía imágenes de animales."):
     def __init__(self, client: commands.Bot):
         super().__init__()
         self.client = client

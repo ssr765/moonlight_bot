@@ -23,7 +23,7 @@ class client(commands.Bot):
             )
         )
 
-        self.config = config.embed_color
+        self.config = config
 
         # Eliminar comando antiguo "help".
         self.remove_command("help")

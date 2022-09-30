@@ -4,11 +4,11 @@ moonlight bot es un bot para Discord programado en Python.
 ## Comandos disponibles
 - /ping
 
-### Animales
+### Animales - Foto de un gato o un perro aleatorios.
 - /animales gato
 - /animales perro
 
-### Acciones
+### Acciones - Interactua con otros usuarios.
 - /accion airkiss
 - /accion bite
 - /accion blush
@@ -32,3 +32,7 @@ moonlight bot es un bot para Discord programado en Python.
 - /accion love
 - /accion pat
 - /accion slap
+
+### Decidir - Hazle una pregunta al bot.
+- /decidir elegir
+- /decidir pregunta

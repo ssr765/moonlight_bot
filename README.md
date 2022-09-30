@@ -13,7 +13,7 @@ moonlight bot es un bot para Discord programado en Python.
 - /accion bite
 - /accion blush
 - /accion brofist
-- /accion elebrate
+- /accion celebrate
 - /accion cheers
 - /accion clap
 - /accion confused
@@ -21,7 +21,7 @@ moonlight bot es un bot para Discord programado en Python.
 - /accion cry
 - /accion dance
 - /accion drool
-- /accion villaugh
+- /accion evillaugh
 - /accion facepalm
 - /accion handhold
 - /accion happy

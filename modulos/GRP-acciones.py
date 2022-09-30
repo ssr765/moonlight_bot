@@ -56,9 +56,9 @@ class acciones(commands.GroupCog, name="accion"):
         embed.set_footer(text=self.client.user, icon_url=self.client.user.avatar.url)
         return embed
 
-    @app_commands.command(name="airkiss", description="Lánzale un beso a alguien.")
+    @app_commands.command(name="lanzar_beso", description="Lánzale un beso a alguien.")
     @app_commands.describe(user="Usuario al que quieres lanzarle el beso.")
-    async def airkiss(self, interaction: discord.Interaction, user: discord.User):
+    async def airkiss(self, interaction: discord.Interaction, user: discord.Member):
         # Solo el owner del bot puede realizarle estas acciones al bot, en caso de no ser el owner se niega.
         if interaction.user.id != self.client.owner_id and user == self.client.user:
             await interaction.response.send_message(embed=discord.Embed(title=random.choice(self.negaciones), color=0xdd0000))
@@ -67,9 +67,9 @@ class acciones(commands.GroupCog, name="accion"):
         embed = await self.embed_accion_dospersonas(interaction.user.name, user.name, "airkiss")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="bite", description="Muerde a alguien.")
+    @app_commands.command(name="morder", description="Muerde a alguien.")
     @app_commands.describe(user="Usuario al que quieres morder.")
-    async def bite(self, interaction: discord.Interaction, user: discord.User):
+    async def bite(self, interaction: discord.Interaction, user: discord.Member):
         # Solo el owner del bot puede realizarle estas acciones al bot, en caso de no ser el owner se niega.
         if interaction.user.id != self.client.owner_id and user == self.client.user:
             await interaction.response.send_message(embed=discord.Embed(title=random.choice(self.negaciones), color=0xdd0000))
@@ -78,41 +78,41 @@ class acciones(commands.GroupCog, name="accion"):
         embed = await self.embed_accion_dospersonas(interaction.user.name, user.name, "bite")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="blush", description="Muestra que estás enrojecido.")
+    @app_commands.command(name="enrocejerse", description="Muestra que estás enrojecido.")
     async def blush(self, interaction: discord.Interaction):
         embed = await self.embed_accion(interaction.user.name, "blush")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="brofist", description="Choca los puños con alguien.")
+    @app_commands.command(name="puños", description="Choca los puños con alguien.")
     @app_commands.describe(user="Usuario con el que quieres chocar los puños.")
-    async def brofist(self, interaction: discord.Interaction, user: discord.User):
+    async def brofist(self, interaction: discord.Interaction, user: discord.Member):
         embed = await self.embed_accion_dospersonas(interaction.user.name, user.name, "brofist")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="celebrate", description="Ponte a celebrar algo.")
+    @app_commands.command(name="celebrar", description="Ponte a celebrar algo.")
     async def celebrate(self, interaction: discord.Interaction):
         embed = await self.embed_accion(interaction.user.name, "celebrate")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="cheers", description="Brinda con alguien.")
+    @app_commands.command(name="brindar", description="Brinda con alguien.")
     @app_commands.describe(user="Usuario con el que quieres brindar.")
-    async def cheers(self, interaction: discord.Interaction, user: discord.User):
+    async def cheers(self, interaction: discord.Interaction, user: discord.Member):
         embed = await self.embed_accion_dospersonas(interaction.user.name, user.name, "cheers")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="clap", description="Ponte a aplaudir.")
+    @app_commands.command(name="aplaudir", description="Ponte a aplaudir.")
     async def clap(self, interaction: discord.Interaction):
         embed = await self.embed_accion(interaction.user.name, "clap")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="confused", description="Muestra que estás confuso.")
+    @app_commands.command(name="confunso", description="Muestra que estás confuso.")
     async def confused(self, interaction: discord.Interaction):
         embed = await self.embed_accion(interaction.user.name, "confused")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="cuddle", description="Dale mimos a alguien.")
+    @app_commands.command(name="mimos", description="Dale mimos a alguien.")
     @app_commands.describe(user="Usuario al que le quieres dar mimos.")
-    async def cuddle(self, interaction: discord.Interaction, user: discord.User):
+    async def cuddle(self, interaction: discord.Interaction, user: discord.Member):
         # Solo el owner del bot puede realizarle estas acciones al bot, en caso de no ser el owner se niega.
         if interaction.user.id != self.client.owner_id and user == self.client.user:
             await interaction.response.send_message(embed=discord.Embed(title=random.choice(self.negaciones), color=0xdd0000))
@@ -121,22 +121,22 @@ class acciones(commands.GroupCog, name="accion"):
         embed = await self.embed_accion_dospersonas(interaction.user.name, user.name, "cuddle")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="cry", description="Muestra que estás llorando.")
+    @app_commands.command(name="llorar", description="Muestra que estás llorando.")
     async def cry(self, interaction: discord.Interaction):
         embed = await self.embed_accion(interaction.user.name, "cry")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="dance", description="Ponte a bailar.")
+    @app_commands.command(name="bailar", description="Ponte a bailar.")
     async def dance(self, interaction: discord.Interaction):
         embed = await self.embed_accion(interaction.user.name, "dance")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="drool", description="Muestra que estás babeando.")
+    @app_commands.command(name="babear", description="Muestra que estás babeando.")
     async def drool(self, interaction: discord.Interaction):
         embed = await self.embed_accion(interaction.user.name, "drool")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="evillaugh", description="Ponte a tramar algo.")
+    @app_commands.command(name="maligno", description="Ponte a tramar algo.")
     async def evillaugh(self, interaction: discord.Interaction):
         embed = await self.embed_accion(interaction.user.name, "evillaugh")
         await interaction.response.send_message(embed=embed)
@@ -146,8 +146,8 @@ class acciones(commands.GroupCog, name="accion"):
         embed = await self.embed_accion(interaction.user.name, "facepalm")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="handhold", description="Coje de la mano a alguien.")
-    async def handhold(self, interaction: discord.Interaction, user: discord.User):
+    @app_commands.command(name="manos", description="Coje de la mano a alguien.")
+    async def handhold(self, interaction: discord.Interaction, user: discord.Member):
         # Solo el owner del bot puede realizarle estas acciones al bot, en caso de no ser el owner se niega.
         if interaction.user.id != self.client.owner_id and user == self.client.user:
             await interaction.response.send_message(embed=discord.Embed(title=random.choice(self.negaciones), color=0xdd0000))
@@ -156,19 +156,19 @@ class acciones(commands.GroupCog, name="accion"):
         embed = await self.embed_accion_dospersonas(interaction.user.name, user.name, "handhold")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="happy", description="Muestra que estás feliz.")
+    @app_commands.command(name="feliz", description="Muestra que estás feliz.")
     async def happy(self, interaction: discord.Interaction):
         embed = await self.embed_accion(interaction.user.name, "happy")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="headbang", description="Date cabezazos contra la pared.")
+    @app_commands.command(name="cabezazos", description="Date cabezazos contra la pared.")
     async def headbang(self, interaction: discord.Interaction):
         embed = await self.embed_accion(interaction.user.name, "headbang")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="hug", description="Abraza a alguien.")
+    @app_commands.command(name="abrazar", description="Abraza a alguien.")
     @app_commands.describe(user="Usuario al que quieres abrazar.")
-    async def hug(self, interaction: discord.Interaction, user: discord.User):
+    async def hug(self, interaction: discord.Interaction, user: discord.Member):
         # Solo el owner del bot puede realizarle estas acciones al bot, en caso de no ser el owner se niega.
         if interaction.user.id != self.client.owner_id and user == self.client.user:
             await interaction.response.send_message(embed=discord.Embed(title=random.choice(self.negaciones), color=0xdd0000))
@@ -177,9 +177,9 @@ class acciones(commands.GroupCog, name="accion"):
         embed = await self.embed_accion_dospersonas(interaction.user.name, user.name, "hug")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="kiss", description="Besa a alguien.")
+    @app_commands.command(name="besar", description="Besa a alguien.")
     @app_commands.describe(user="Usuario al que quieres besar.")
-    async def kiss(self, interaction: discord.Interaction, user: discord.User):
+    async def kiss(self, interaction: discord.Interaction, user: discord.Member):
         # Solo el owner del bot puede realizarle estas acciones al bot, en caso de no ser el owner se niega.
         if interaction.user.id != self.client.owner_id and user == self.client.user:
             await interaction.response.send_message(embed=discord.Embed(title=random.choice(self.negaciones), color=0xdd0000))
@@ -188,14 +188,14 @@ class acciones(commands.GroupCog, name="accion"):
         embed = await self.embed_accion_dospersonas(interaction.user.name, user.name, "kiss")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="laugh", description="Muestra que te estás riendo.")
+    @app_commands.command(name="reir", description="Muestra que te estás riendo.")
     async def laugh(self, interaction: discord.Interaction):
         embed = await self.embed_accion(interaction.user.name, "laugh")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="love", description="Muestra que quieres a alguien.")
+    @app_commands.command(name="amor", description="Muestra que quieres a alguien.")
     @app_commands.describe(user="Usuario al que quieres.")
-    async def love(self, interaction: discord.Interaction, user: discord.User):
+    async def love(self, interaction: discord.Interaction, user: discord.Member):
         # Solo el owner del bot puede realizarle estas acciones al bot, en caso de no ser el owner se niega.
         if interaction.user.id != self.client.owner_id and user == self.client.user:
             await interaction.response.send_message(embed=discord.Embed(title=random.choice(self.negaciones), color=0xdd0000))
@@ -206,7 +206,7 @@ class acciones(commands.GroupCog, name="accion"):
 
     @app_commands.command(name="pat", description="Hazle pat pat a alguien.")
     @app_commands.describe(user="Usuario al quel le quieres hacer pat pat.")
-    async def pat(self, interaction: discord.Interaction, user: discord.User):
+    async def pat(self, interaction: discord.Interaction, user: discord.Member):
         # Solo el owner del bot puede realizarle estas acciones al bot, en caso de no ser el owner se niega.
         if interaction.user.id != self.client.owner_id and user == self.client.user:
             await interaction.response.send_message(embed=discord.Embed(title=random.choice(self.negaciones), color=0xdd0000))
@@ -215,9 +215,9 @@ class acciones(commands.GroupCog, name="accion"):
         embed = await self.embed_accion_dospersonas(interaction.user.name, user.name, "pat")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="slap", description="Abofetea a alguien.")
+    @app_commands.command(name="abofetear", description="Abofetea a alguien.")
     @app_commands.describe(user="Usuario al que quieres abofetear.")
-    async def slap(self, interaction: discord.Interaction, user: discord.User):
+    async def slap(self, interaction: discord.Interaction, user: discord.Member):
         # Solo el owner del bot puede realizarle estas acciones al bot, en caso de no ser el owner se niega.
         # En el caso de la bofetada, también abofetea al que le ha intentado abodetear.
         if interaction.user.id != self.client.owner_id and user == self.client.user:

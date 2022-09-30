@@ -9,29 +9,29 @@ moonlight bot es un bot para Discord programado en Python.
 - /animales perro
 
 ### Acciones - Interactua con otros usuarios.
-- /accion airkiss
-- /accion bite
-- /accion blush
-- /accion brofist
-- /accion celebrate
-- /accion cheers
-- /accion clap
-- /accion confused
-- /accion cuddle
-- /accion cry
-- /accion dance
-- /accion drool
-- /accion evillaugh
+- /accion lanzar_beso
+- /accion morder
+- /accion enrocejerse
+- /accion puños
+- /accion celebrar
+- /accion brindar
+- /accion aplaudir
+- /accion confuso
+- /accion mimos
+- /accion llorar
+- /accion bailar
+- /accion babear
+- /accion maligno
 - /accion facepalm
-- /accion handhold
-- /accion happy
-- /accion headbang
-- /accion hug
-- /accion kiss
-- /accion laugh
-- /accion love
+- /accion manos
+- /accion feliz
+- /accion cabezazos
+- /accion abrazar
+- /accion besar
+- /accion reir
+- /accion amor
 - /accion pat
-- /accion slap
+- /accion abofetear
 
 ### Decidir - Hazle una pregunta al bot.
 - /decidir elegir

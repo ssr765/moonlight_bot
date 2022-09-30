@@ -1,7 +1,34 @@
 # moonlight_bot🌙
-moonlight bot is a multi-purpose bot for Discord coded in Python with discord.py 2.0
+moonlight bot es un bot para Discord programado en Python.
 
-## Available commands
+## Comandos disponibles
+- /ping
+
+### Animales
 - /animales gato
 - /animales perro
-- /ping
+
+### Acciones
+- /accion airkiss
+- /accion bite
+- /accion blush
+- /accion brofist
+- /accion elebrate
+- /accion cheers
+- /accion clap
+- /accion confused
+- /accion cuddle
+- /accion cry
+- /accion dance
+- /accion drool
+- /accion villaugh
+- /accion facepalm
+- /accion handhold
+- /accion happy
+- /accion headbang
+- /accion hug
+- /accion kiss
+- /accion laugh
+- /accion love
+- /accion pat
+- /accion slap

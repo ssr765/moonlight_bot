@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from colorama import Fore
 from dotenv import load_dotenv
+import aiomysql
 
 from load_config import config
 from config.asciiart_generator import asciiart
@@ -11,6 +12,11 @@ from config.asciiart_generator import asciiart
 # Obtener token.
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
+DB_HOST = os.getenv("DB_HOST")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_PORT = os.getenv("DB_PORT")
+DB_DATABASE = os.getenv("DB_DATABASE")
 
 class client(commands.Bot):
     def __init__(self, config):
@@ -47,7 +53,15 @@ class client(commands.Bot):
             print(f"> {Fore.RED}⚠  {x} no se ha podido cargar. {Fore.RESET}")
     
     async def setup_hook(self):
+        # Aiohttp session
         self.session = aiohttp.ClientSession()
+
+        # Database connection
+        self.database = await aiomysql.create_pool(host=DB_HOST, port=DB_PORT,
+                                        user=DB_USER, password=DB_PASSWORD,
+                                        db=DB_DATABASE)
+        self.database.connection = await self.database.acquire()
+        self.cursor = await self.database.connection.cursor()
 
         # Cargar modulos.
         for cog in [cog[:-3] for cog in self.initial_modules]:

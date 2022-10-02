@@ -1,4 +1,7 @@
 {
     "prefix": "$",
-    "embed_color": "0xdcdcdc"
+    "embed_color": "0xdcdcdc",
+    "apuestas": {
+        "puntos_iniciales": 5000
+    }
 }

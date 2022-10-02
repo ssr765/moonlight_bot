@@ -18,3 +18,17 @@ class config:
             
         else:
             self.embed_color = 0xdcdcdc
+
+        # Configuración de gambling
+        class apuestas_config:
+            def __init__(self, d):
+                
+                # Puntos iniciales
+                if d["puntos_iniciales"] != None:
+                    self.puntos_iniciales = d["puntos_iniciales"]
+                
+                else:
+                    self.puntos_iniciales = 5000
+        
+        # Apuestas
+        self.apuestas = apuestas_config(d["apuestas"])

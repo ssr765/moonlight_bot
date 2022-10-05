@@ -36,3 +36,8 @@ moonlight bot es un bot para Discord programado en Python.
 ### Decidir - Hazle una pregunta al bot.
 - /decidir elegir
 - /decidir pregunta
+
+### Apuestas - Apuesta puntos en el servidor.
+- /apuesta coinflip
+- /apuesta puntos
+- /apuesta diario

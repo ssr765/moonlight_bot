@@ -46,7 +46,7 @@ class client(commands.Bot):
         self.uncharged_modules = []
 
     async def on_ready(self):
-        asciiart.crear()
+        asciiart()
         print(f"> {self.user} {Fore.GREEN}conectado{Fore.RESET}")
         print(f"> Discord.py version: {discord.__version__}")
         for x in self.uncharged_modules:

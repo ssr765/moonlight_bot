@@ -29,6 +29,20 @@ class config:
                 
                 else:
                     self.puntos_iniciales = 5000
+                
+                # Mínimo de puntos diarios
+                if d["puntos_diarios_min"] != None:
+                    self.puntos_diarios_min = d["puntos_diarios_min"]
+                
+                else:
+                    self.puntos_diarios_min = 5000
+                
+                # Máximo de puntos iniciales
+                if d["puntos_diarios_max"] != None:
+                    self.puntos_diarios_max = d["puntos_diarios_max"]
+                
+                else:
+                    self.puntos_diarios_max = 5000
         
         # Apuestas
         self.apuestas = apuestas_config(d["apuestas"])

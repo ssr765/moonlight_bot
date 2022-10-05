@@ -2,6 +2,8 @@
     "prefix": "$",
     "embed_color": "0xdcdcdc",
     "apuestas": {
-        "puntos_iniciales": 5000
+        "puntos_iniciales": 5000,
+        "puntos_diarios_min": 500, 
+        "puntos_diarios_max": 2000
     }
 }

@@ -1,5 +1,6 @@
 import random
 from typing import Literal
+import datetime
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -9,6 +10,30 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
     def __init__(self, client: commands.Bot):
         super().__init__()
         self.client = client
+
+    async def consultar_puntos(self, servidor, usuario):
+        sql_query = f"""
+            SELECT puntos FROM puntos
+            WHERE servidorID = (
+                SELECT ID FROM servidores
+                WHERE servidor = '{servidor}')
+            AND usuarioID = (
+                SELECT ID FROM usuarios
+                WHERE usuario = '{usuario}');"""
+        await self.client.cursor.execute(sql_query)
+
+        # consulta.result() devuelve ((puntos,),)
+        consulta = self.client.cursor.fetchall()
+
+        # Si no está registrado lo registra.
+        if len(consulta.result()) == 0:
+            await self.registrar(servidor, usuario)
+            await self.client.cursor.execute(sql_query)
+            consulta = self.client.cursor.fetchall()
+        
+        consulta = consulta.result()[0][0]
+
+        return consulta
 
     async def registrar(self, servidor, usuario):
         # Bloques try/except para ignorar las entradas duplicadas.
@@ -47,31 +72,8 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
     @app_commands.describe(cara_elegida="Elige una de las dos caras de la moneda.", apuesta="Cantidad de puntos que quieres apostar. Apuesta mínima: 1.")
     async def coinflip(self, interaction: discord.Interaction, cara_elegida: Literal["Cara", "Cruz"], apuesta: app_commands.Range[int, 1]):
         # Hacer la consulta.
-        await self.client.cursor.execute(f"""
-            SELECT puntos FROM puntos
-            WHERE servidorID = (
-                SELECT ID FROM servidores
-                WHERE servidor = '{interaction.guild_id}')
-            AND usuarioID = (
-                SELECT ID FROM usuarios
-                WHERE usuario = '{interaction.user.id}');""")
-        consulta = self.client.cursor.fetchall()
+        puntos_disponibles = await self.consultar_puntos(interaction.guild_id, interaction.user.id)
 
-        # Si la consulta no devuelve nada registra al usuario en la base de datos y vuelve a hacer la consulta.
-        while len(consulta.result()) == 0:
-            await self.registrar(interaction.guild_id, interaction.user.id)
-            await self.client.cursor.execute(f"""
-                SELECT puntos FROM puntos
-                WHERE servidorID = (
-                    SELECT ID FROM servidores
-                    WHERE servidor = '{interaction.guild_id}')
-                AND usuarioID = (
-                    SELECT ID FROM usuarios
-                    WHERE usuario = '{interaction.user.id}');""")
-            consulta = self.client.cursor.fetchall()
-
-        # consulta.result() devuelve ((puntos,),)
-        puntos_disponibles = consulta.result()[0][0]
         if apuesta > puntos_disponibles:
             await interaction.response.send_message("No tienes suficientes puntos.")
         
@@ -106,23 +108,36 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
     @app_commands.command(name="puntos", description="Consulta tus puntos.")
     async def puntos(self, interaction: discord.Interaction):
         # Hacer la consulta.
+        puntos_disponibles = await self.consultar_puntos(interaction.guild_id, interaction.user.id)
+        await interaction.response.send_message(f"Tienes {puntos_disponibles} puntos.")
+
+    @app_commands.command(name="diario", description=f"Consigue puntos diariamente.")
+    @app_commands.checks.cooldown(1, 86400, key=lambda i: (i.guild_id, i.user.id))
+    async def diario(self, interaction: discord.Interaction):
+        # Consulta
+        puntos_disponibles = await self.consultar_puntos(interaction.guild_id, interaction.user.id)
+
+        # Puntos diarios aleatorios
+        puntos = random.randint(self.client.config.apuestas.puntos_diarios_min, self.client.config.apuestas.puntos_diarios_max)
+
+        # Añadir los puntos.
         await self.client.cursor.execute(f"""
-            SELECT puntos FROM puntos
+            UPDATE puntos
+            SET puntos = {puntos_disponibles + puntos}
             WHERE servidorID = (
                 SELECT ID FROM servidores
                 WHERE servidor = '{interaction.guild_id}')
             AND usuarioID = (
                 SELECT ID FROM usuarios
                 WHERE usuario = '{interaction.user.id}');""")
-        consulta = self.client.cursor.fetchall()
+        await self.client.database.connection.commit()
 
-        # consulta.result() devuelve ((puntos,),)
-        puntos_disponibles = consulta.result()[0][0]
-        if len(consulta.result()) == 0:
-            await interaction.response.send_message(f"No estás registrado en el servidor, juega a cualquier juego para recibir {self.client.config.apuestas.puntos_iniciales} puntos iniciales.")
-        
-        else:
-            await interaction.response.send_message(f"Tienes {puntos_disponibles} puntos.")
+        await interaction.response.send_message(f"Hoy has conseguido {puntos}! Vuelve mañana para obtener más puntos.")
+    
+    @diario.error
+    async def on_test_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        if isinstance(error, app_commands.CommandOnCooldown):
+            await interaction.response.send_message(f"Todavía no puedes reclamar el bonus diario, queda {str(datetime.timedelta(seconds=error.retry_after)).split('.')[0]} para que puedas volver a hacerlo.", ephemeral=True)
 
 async def setup(client: commands.Bot):
     await client.add_cog(apuestas(client))

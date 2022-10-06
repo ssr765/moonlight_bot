@@ -8,28 +8,26 @@ class help(commands.Cog):
         super().__init__()
         self.client = client
     
-        self.comandos = {"comandos": {}, "modulos": {}}
+        # Lista de comandos/módulos
+        self.comandos = {"comandos": [], "modulos": []}
 
     @app_commands.command(name="help", description="Muestra ayuda sobre los comandos.")
+    @app_commands.rename(modulo="módulo")
     @app_commands.describe(modulo="Introduce el módulo sobre el que quieres obtener ayuda.")
     async def help(self, interaction: discord.Interaction, modulo: str = None):
+        # Separamos los comandos y los grupos.
         for item in self.client.tree.get_commands():
-            if item == app_commands.commands.Command:
-                self.comandos["comandos"][item.name]["name"] = item.name
-                self.comandos["comandos"][item.name]["description"] = item.description
+            # Identificar el tipo de cada cosa en la lista para separarlos.
+            if type(item) == app_commands.commands.Command:
+                self.comandos["comandos"].append({"name": item.name, "description": item.description})
             
-            elif item == app_commands.commands.Group:
-                self.comandos["modulos"][item.name] = {"name": item.name, "description": item.description, "commands": [{"name": command.name, "description": command.description} for command in item.commands]}
-        # # Separamos los comandos y los grupos.
-        # for item in self.client.tree.get_commands():
-        #     if type(item) == app_commands.commands.Command:
-        #         self.comandos.append(item)
-            
-        #     elif type(item) == app_commands.commands.Group:
-        #         self.grupos.append(item)
+            elif type(item) == app_commands.commands.Group:
+                self.comandos["modulos"].append({"name": item.name, "description": item.description, "comandos": [{"name": command.name, "description": command.description} for command in item.commands]})
 
+        # Crear embed
         embed = discord.Embed(color=self.client.config.embed_color)
 
+        # Si no se especifica ningún módulo muestra todos los comandos y los módulos.
         if modulo == None:
             embed.set_author(name="Ayuda", icon_url=self.client.user.display_avatar)
         
@@ -37,24 +35,34 @@ class help(commands.Cog):
             msg_comandos = ""
             for comando in self.comandos["comandos"]:
                 msg_comandos += f"``{comando['name']}`` - {comando['description']}\n"
-            embed.add_field(name="Comandos principales", value=msg_comandos)
+            embed.add_field(name="Comandos principales", value=msg_comandos, inline=False)
             
             # Generamos la información de los módulos disponibles.
             msg_grupos = ""
             for grupo in self.comandos["modulos"]:
                 msg_grupos += f"``{grupo['name']}`` - {grupo['description']}\n"
-            embed.add_field(name="Módulos", value=msg_grupos)
+            embed.add_field(name="Módulos", value=msg_grupos, inline=False)
         
-        elif modulo in [grupo['name'] for grupo in self.comandos["modulos"]]:
+        # Si se especifica un módulo lo busca en una lista con los nombres de los módulos.
+        elif modulo.lower() in [grupo["name"] for grupo in self.comandos["modulos"]]:
             embed.set_author(name=f"Ayuda de {modulo}", icon_url=self.client.user.display_avatar)
         
             # Generamos la información de los comandos disponibles.
             msg_comandos = ""
-            for comando in self.comandos["modulos"][modulo]["comandos"]:
-                msg_comandos += f"``{comando.name}`` - {comando.description}\n"
-            embed.add_field(name="Comandos principales", value=msg_comandos)
 
+            # Para encontrar a que módulo pertenecen los comandos busca el índice de una lista con los nombres de los módulos
+            # y busca en los comandos de este.
+            for comando in self.comandos["modulos"][[grupo["name"] for grupo in self.comandos["modulos"]].index(modulo)]["comandos"]:
+                msg_comandos += f"``{comando['name']}`` - {comando['description']}\n"
+            embed.add_field(name="Comandos principales", value=msg_comandos, inline=False)
+
+        # Si el módulo especificado es incorrecto lo dice.
+        else:
+            embed.color = 0xff0000 # Rojo
+            embed.set_author(name=f"{modulo} no es un módulo válido.", icon_url=self.client.user.display_avatar)
+
+        # Manda el embed.
         await interaction.response.send_message(embed=embed)
 
-# async def setup(client: commands.Bot):
-#     await client.add_cog(help(client))
+async def setup(client: commands.Bot):
+    await client.add_cog(help(client))

@@ -1,7 +1,7 @@
 import os
 from colorama import Fore
 
-def asciiart(self):
+def asciiart():
     if os.name == "nt":
         os.system("cls")
         

@@ -1,0 +1,39 @@
+{
+    "acciones": {
+        "airkiss": "le lanza un beso a",
+        "bite": "muerde a",
+        "blush": "se enrojece",
+        "brofist": "choca los puños con",
+        "celebrate": "lo celebra",
+        "cheers": "brinda con",
+        "clap": "aplaude",
+        "confused": "está confundido/a",
+        "cuddle": "le da mimos a",
+        "cry": "está llorando",
+        "dance": "se ha puesto a bailar",
+        "drool": "está babeando",
+        "evillaugh": "está tramando algo",
+        "facepalm": "está decepcionado/a",
+        "handhold": "ha cojido de la mano a",
+        "happy": "está contento/a",
+        "headbang": "se está dando cabezazos contra la pared",
+        "hug": "abraza a",
+        "kiss": "besa a",
+        "laugh": "se ha puesto a reir",
+        "love": "quiere a",
+        "mad": "está enfadado/a",
+        "nervous": "está nervioso/a",
+        "pat": "le hace pat pat a",
+        "peek": "se asoma",
+        "slap": "abofetea a"
+    },
+    "negaciones": [
+        "no lol",
+        "iugh",
+        "quita quita",
+        "aparta",
+        "dejame",
+        "no puedes",
+        "no me toques"
+    ]
+}

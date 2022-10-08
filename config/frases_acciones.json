@@ -20,12 +20,21 @@
         "hug": "abraza a",
         "kiss": "besa a",
         "laugh": "se ha puesto a reir",
+        "lick": "lame a",
         "love": "quiere a",
         "mad": "está enfadado/a",
         "nervous": "está nervioso/a",
+        "no": "dice no",
         "pat": "le hace pat pat a",
         "peek": "se asoma",
-        "slap": "abofetea a"
+        "sad": "está triste",
+        "sip": "*sorbe*",
+        "slap": "abofetea a",
+        "sleep": "está durmiendo",
+        "smack": "golpea a",
+        "sorry": "se disculpa",
+        "yawn": "tiene sueño",
+        "yes": "dice sí"
     },
     "negaciones": [
         "no lol",

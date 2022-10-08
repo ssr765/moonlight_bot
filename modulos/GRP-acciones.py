@@ -34,7 +34,14 @@ class acciones(commands.GroupCog, name="accion"):
         app_commands.Choice(name="Reir", value="laugh"),
         app_commands.Choice(name="Enfadado", value="mad"),
         app_commands.Choice(name="Nervioso", value="nervous"),
+        app_commands.Choice(name="Negarse", value="no"),
         app_commands.Choice(name="Asomarse", value="peek"),
+        app_commands.Choice(name="Triste", value="sad"),
+        app_commands.Choice(name="Sorber", value="sip"),
+        app_commands.Choice(name="Dormir", value="sleep"),
+        app_commands.Choice(name="Pedir disculpas", value="sorry"),
+        app_commands.Choice(name="Bostezar", value="yawn"),
+        app_commands.Choice(name="Afirmar", value="yes"),
         ])
     async def expresion(self, interaction: discord.Interaction, expresion: app_commands.Choice[str]):
         # Imágen de una acción propia.
@@ -59,9 +66,11 @@ class acciones(commands.GroupCog, name="accion"):
         app_commands.Choice(name="Cojer de la mano", value="handhold"),
         app_commands.Choice(name="Abrazar", value="hug"),
         app_commands.Choice(name="Besar", value="kiss"),
+        app_commands.Choice(name="Chupar", value="lick"),
         app_commands.Choice(name="Dar cariño", value="love"),
         app_commands.Choice(name="Hacer pat pat", value="pat"),
         app_commands.Choice(name="Abofetear", value="slap"),
+        app_commands.Choice(name="Golpear", value="smack"),
         ])
     async def interactuar(self, interaction: discord.Interaction, accion: app_commands.Choice[str], user: discord.Member):
         # Imágen de una acción conjunta.
@@ -72,6 +81,14 @@ class acciones(commands.GroupCog, name="accion"):
         embed.set_image(url=source["url"])
         embed.set_footer(text=self.client.user, icon_url=self.client.user.avatar.url)
         await interaction.response.send_message(embed=embed)
+
+    """
+    Acciones disponibles de otakugifs.xyz no añadidas:
+        angrystare, bleh, nyah, nom, nosebleed, nuzzle,
+        pinch, poke, pout, punch, roll, run, ,scared,
+        shrug, shy, sigh, slowclap, smile, smug,
+        sneeze, stare, stop, surprised, sweat, thumbsup,
+        tickle, tired, wave, wink, woah, yay."""
 
 async def setup(client: commands.Bot):
     await client.add_cog(acciones(client))

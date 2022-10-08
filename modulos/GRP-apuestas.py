@@ -12,73 +12,82 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
         self.client = client
 
     async def consultar_puntos(self, servidor, usuario):
-        sql_query = f"""
-            SELECT puntos FROM puntos
-            WHERE servidorID = (
-                SELECT ID FROM servidores
-                WHERE servidor = '{servidor}')
-            AND usuarioID = (
-                SELECT ID FROM usuarios
-                WHERE usuario = '{usuario}');"""
-        await self.client.cursor.execute(sql_query)
+        # Cogiendo una conexión de la pool.
+        async with self.client.pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                sql_query = f"""
+                    SELECT puntos FROM puntos
+                    WHERE servidorID = (
+                        SELECT ID FROM servidores
+                        WHERE servidor = '{servidor}')
+                    AND usuarioID = (
+                        SELECT ID FROM usuarios
+                        WHERE usuario = '{usuario}');"""
+                await cursor.execute(sql_query)
 
-        # consulta.result() devuelve ((puntos,),)
-        consulta = self.client.cursor.fetchall()
+                # consulta.result() devuelve ((puntos,),)
+                consulta = cursor.fetchall()
 
-        # Si no está registrado lo registra.
-        if len(consulta.result()) == 0:
-            await self.registrar(servidor, usuario)
-            await self.client.cursor.execute(sql_query)
-            consulta = self.client.cursor.fetchall()
-        
-        consulta = consulta.result()[0][0]
+                # Si no está registrado lo registra.
+                if len(consulta.result()) == 0:
+                    await self.registrar(servidor, usuario)
+                    await cursor.execute(sql_query)
+                    consulta = cursor.fetchall()
+                
+                consulta = consulta.result()[0][0]
 
-        return consulta
+                return consulta
 
     async def registrar(self, servidor, usuario):
-        # Bloques try/except para ignorar las entradas duplicadas.
-        try:
-            await self.client.cursor.execute(f"INSERT INTO servidores (servidor) VALUE ('{servidor}');")
-            print(f"> {servidor} ha sido añadido a la base de datos.")
-        
-        except IntegrityError:
-            print(f"> El servidor {servidor} ya estaba registrado en la base de datos. Ignorando...")
+        # Cogiendo una conexión de la pool.
+        async with self.client.pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                # Bloques try/except para ignorar las entradas duplicadas.
+                try:
+                    await cursor.execute(f"INSERT INTO servidores (servidor) VALUE ('{servidor}');")
+                    print(f"> {servidor} ha sido añadido a la base de datos.")
+                
+                except IntegrityError:
+                    print(f"> El servidor {servidor} ya estaba registrado en la base de datos. Ignorando...")
 
-        try:
-            await self.client.cursor.execute(f"INSERT INTO usuarios (usuario) VALUE ('{usuario}');")
-            print(f"> {usuario} ha sido añadido a la base de datos.")
-        
-        except IntegrityError:
-            print(f"> El usuario {usuario} ya estaba registrado en la base de datos. Ignorando...")
+                try:
+                    await cursor.execute(f"INSERT INTO usuarios (usuario) VALUE ('{usuario}');")
+                    print(f"> {usuario} ha sido añadido a la base de datos.")
+                
+                except IntegrityError:
+                    print(f"> El usuario {usuario} ya estaba registrado en la base de datos. Ignorando...")
 
-        # Se guardan los cambios para que pueda encontrar el servidor y el usuario.
-        await self.client.database.connection.commit()
-        await self.client.cursor.execute(f"""
-            INSERT INTO puntos (
-                servidorID,
-                usuarioID,
-                puntos)
-            VALUE (
-                (
-                    SELECT ID FROM servidores
-                    WHERE servidor = '{servidor}'),
-                (
-                    SELECT ID FROM usuarios
-                    WHERE usuario = '{usuario}'),
-                {self.client.config.apuestas.puntos_iniciales});""")
-        await self.client.database.connection.commit()
+                # Se guardan los cambios para que pueda encontrar el servidor y el usuario.
+                await conn.commit()
+                await cursor.execute(f"""
+                    INSERT INTO puntos (
+                        servidorID,
+                        usuarioID,
+                        puntos)
+                    VALUE (
+                        (
+                            SELECT ID FROM servidores
+                            WHERE servidor = '{servidor}'),
+                        (
+                            SELECT ID FROM usuarios
+                            WHERE usuario = '{usuario}'),
+                        {self.client.config.apuestas.puntos_iniciales});""")
+                await conn.commit()
 
     async def actualizar_puntos(self, servidor, usuario, puntos_disponibles, puntos):
-        await self.client.cursor.execute(f"""
-            UPDATE puntos
-            SET puntos = {puntos_disponibles + puntos}
-            WHERE servidorID = (
-                SELECT ID FROM servidores
-                WHERE servidor = '{servidor}')
-            AND usuarioID = (
-                SELECT ID FROM usuarios
-                WHERE usuario = '{usuario}');""")
-        await self.client.database.connection.commit()
+        # Cogiendo una conexión de la pool.
+        async with self.client.pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute(f"""
+                    UPDATE puntos
+                    SET puntos = {puntos_disponibles + puntos}
+                    WHERE servidorID = (
+                        SELECT ID FROM servidores
+                        WHERE servidor = '{servidor}')
+                    AND usuarioID = (
+                        SELECT ID FROM usuarios
+                        WHERE usuario = '{usuario}');""")
+                await conn.commit()
 
     class lado_moneda:
         def __init__(self, lado):
@@ -96,10 +105,10 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
     @app_commands.command(name="moneda", description="Lanza una moneda. Ganar duplica los puntos apostados!")
     @app_commands.rename(cara_elegida="lado")
     @app_commands.choices(cara_elegida=[
-        app_commands.Choice(name='⭕ Cara', value="cara"),
-        app_commands.Choice(name='❌ Cruz', value="cruz")])
+        app_commands.Choice(name="⭕ Cara", value="cara"),
+        app_commands.Choice(name="❌ Cruz", value="cruz")])
     @app_commands.describe(cara_elegida="Elige una de las dos caras de la moneda.", apuesta="Cantidad de puntos que quieres apostar. Apuesta mínima: 1.")
-    async def moneda(self, interaction: discord.Interaction, cara_elegida: app_commands.Choice[str], apuesta: app_commands.Range[int, 1]):
+    async def moneda(self, interaction: discord.Interaction, apuesta: app_commands.Range[int, 1], cara_elegida: app_commands.Choice[str]):
         # Hacer la consulta.
         puntos_disponibles = await self.consultar_puntos(interaction.guild_id, interaction.user.id)
 
@@ -133,16 +142,7 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
         puntos = random.randint(self.client.config.apuestas.puntos_diarios_min, self.client.config.apuestas.puntos_diarios_max)
 
         # Añadir los puntos.
-        await self.client.cursor.execute(f"""
-            UPDATE puntos
-            SET puntos = {puntos_disponibles + puntos}
-            WHERE servidorID = (
-                SELECT ID FROM servidores
-                WHERE servidor = '{interaction.guild_id}')
-            AND usuarioID = (
-                SELECT ID FROM usuarios
-                WHERE usuario = '{interaction.user.id}');""")
-        await self.client.database.connection.commit()
+        await self.actualizar_puntos(interaction.guild_id, interaction.user.id, puntos_disponibles, puntos)
 
         await interaction.response.send_message(f"Hoy has conseguido {puntos}! Vuelve mañana para obtener más puntos.")
     
@@ -202,7 +202,6 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
         # Hacer la consulta.
         puntos_disponibles = await self.consultar_puntos(interaction.guild_id, interaction.user.id)
         numero_premiado = self.numero_ruleta(random.randint(0, 36))
-
 
         if apuesta > puntos_disponibles:
             await interaction.response.send_message("No tienes suficientes puntos para jugar.")

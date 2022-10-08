@@ -34,14 +34,14 @@ class client(commands.Bot):
         # Eliminar comando antiguo "help".
         self.remove_command("help")
 
-        # Generar lista de modulos.
+        # Generar lista de módulos.
         self.initial_modules = os.listdir("modulos")
         if "__pycache__" in self.initial_modules:
             self.initial_modules.remove("__pycache__")
         else:
             pass
 
-        # Lista para mostrar los modulos que no se han cargado.
+        # Lista para mostrar los módulos que no se han cargado.
         # Estos se mostrarán después de borrar la pantalla con el ASCII art.
         self.uncharged_modules = []
 
@@ -56,14 +56,11 @@ class client(commands.Bot):
         # Aiohttp session
         self.session = aiohttp.ClientSession()
 
-        # Database connection
-        self.database = await aiomysql.create_pool(host=DB_HOST, port=DB_PORT,
-                                        user=DB_USER, password=DB_PASSWORD,
-                                        db=DB_DATABASE)
-        self.database.connection = await self.database.acquire()
-        self.cursor = await self.database.connection.cursor()
+        # Connection pool
+        self.pool = await aiomysql.create_pool(host=DB_HOST, port=DB_PORT,
+                        user=DB_USER, password=DB_PASSWORD, db=DB_DATABASE)
 
-        # Cargar modulos.
+        # Cargar módulos.
         for cog in [cog[:-3] for cog in self.initial_modules]:
             try:
                 await ssr765client.load_extension(f"modulos.{cog}")

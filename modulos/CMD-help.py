@@ -11,7 +11,7 @@ class help(commands.Cog):
         # Lista de comandos/módulos
         self.comandos = {"comandos": [], "modulos": []}
 
-    @app_commands.command(name="help", description="Muestra ayuda sobre los comandos.")
+    @app_commands.command(name="help", description=f"Muestra ayuda sobre los comandos de moonlight🌙.")
     @app_commands.rename(modulo="módulo")
     @app_commands.describe(modulo="Introduce el módulo sobre el que quieres obtener ayuda.")
     async def help(self, interaction: discord.Interaction, modulo: str = None):

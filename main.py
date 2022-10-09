@@ -50,7 +50,7 @@ class client(commands.Bot):
         print(f"> {self.user} {Fore.GREEN}conectado{Fore.RESET}")
         print(f"> Discord.py version: {discord.__version__}")
         for x in self.uncharged_modules:
-            print(f"> {Fore.RED}⚠  {x} no se ha podido cargar. {Fore.RESET}")
+            print(x)
     
     async def setup_hook(self):
         # Aiohttp session
@@ -65,14 +65,22 @@ class client(commands.Bot):
             try:
                 await ssr765client.load_extension(f"modulos.{cog}")
 
-            except:
-                print(f"{Fore.RED}⚠  {cog} no se ha podido cargar."
-                    f"{Fore.RESET}")
-                self.uncharged_modules.append(cog)
+            # Módulos sin la función setup (deshabilitados).
+            except commands.NoEntryPointError as e:
+                info = f"> {Fore.YELLOW}⚠  {cog} está deshabilitado.{Fore.RESET}"
+                print(info)
+                self.uncharged_modules.append(info)
 
+            # Módulos con algún error.
+            except Exception as e:
+                info = f"> {Fore.RED}⚠  {cog} no se ha podido cargar.{Fore.RESET}\n>{Fore.RED}   {':'.join(str(e).split(':')[1:])}{Fore.RESET}"
+                print(info)
+                self.uncharged_modules.append(info)
+
+            # Módulos completamente funcionales.
             else:
-                print(f"{Fore.GREEN}✔  {cog} se ha cargado correctamente."
-                    f"{Fore.RESET}")
+                info = f"> {Fore.GREEN}✔  {cog} se ha cargado correctamente.{Fore.RESET}"
+                print(info)
 
 ssr765client = client(config())
 ssr765client.run(TOKEN)

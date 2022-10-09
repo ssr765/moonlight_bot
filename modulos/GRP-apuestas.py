@@ -1,3 +1,4 @@
+import asyncio
 import random
 from typing import Literal
 import datetime
@@ -113,7 +114,7 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
         puntos_disponibles = await self.consultar_puntos(interaction.guild_id, interaction.user.id)
 
         if apuesta > puntos_disponibles:
-            await interaction.response.send_message("No tienes suficientes puntos para jugar.")
+            await interaction.response.send_message("No tienes suficientes puntos para jugar.", ephemeral=True)
             return
 
         cara_ganadora = self.lado_moneda(random.choice(["cara", "cruz"]))
@@ -146,11 +147,6 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
 
         await interaction.response.send_message(f"Hoy has conseguido {puntos}! Vuelve mañana para obtener más puntos.")
     
-    @diario.error
-    async def on_test_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        if isinstance(error, app_commands.CommandOnCooldown):
-            await interaction.response.send_message(f"Todavía no puedes reclamar el bonus diario, queda {str(datetime.timedelta(seconds=error.retry_after)).split('.')[0]} para que puedas volver a hacerlo.", ephemeral=True)
-
     class numero_ruleta:
         def __init__(self, numero):
             NUMEROS_ROJOS = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]
@@ -204,7 +200,7 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
         numero_premiado = self.numero_ruleta(random.randint(0, 36))
 
         if apuesta > puntos_disponibles:
-            await interaction.response.send_message("No tienes suficientes puntos para jugar.")
+            await interaction.response.send_message("No tienes suficientes puntos para jugar.", ephemeral=True)
             return
         
         # Jugada por color 
@@ -252,6 +248,88 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
         # Se eligió más de una opción
         else:
             await interaction.response.send_message(f"Has seleccionado demasiadas opciones, elige solo una, o si no la banca se quedará tus {apuesta} puntos.")
+
+    class numero_dados:
+        def __init__(self, numero):
+            self.numero = numero
+
+            self.COORDENADAS = [
+                [(0, 6), (0, 7), (1, 7), (2, 7), (3, 7), (4, 7)],                                                   # 1
+                [(0, 6), (0, 7), (0, 8), (1, 8), (2, 6), (2, 7), (2, 8), (3, 6), (4, 6), (4, 7), (4, 8)],           # 2
+                [(0, 6), (0, 7), (0, 8), (1, 8), (2, 6), (2, 7), (2, 8), (3, 8), (4, 6), (4, 7), (4, 8)],           # 3
+                [(0, 6), (0, 8), (1, 6), (1, 8), (2, 6), (2, 7), (2, 8), (3, 8), (4, 8)],                           # 4
+                [(0, 6), (0, 7), (0, 8), (1, 6), (2, 6), (2, 7), (2, 8), (3, 8), (4, 6), (4, 7), (4, 8)],           # 5
+                [(0, 6), (0, 7), (0, 8), (1, 6), (2, 6), (2, 7), (2, 8), (3, 6), (3, 8), (4, 6), (4, 7), (4, 8)]    # 6
+                ]
+
+        def dibujar(self) -> str:
+            # Reiniciar tablero.
+            tablero = [["<:vacio:1028722267984769114>"]*15, ["<:vacio:1028722267984769114>"]*15, ["<:vacio:1028722267984769114>"]*15, ["<:vacio:1028722267984769114>"]*15, ["<:vacio:1028722267984769114>"]*15]
+
+            # Poner los dados en las coordenadas.
+            for x, y in self.COORDENADAS[self.numero - 1]:
+                tablero[x][y] = "\\🎲"
+
+            animacion = ""
+
+            # Crear la cadena con el dibujo.
+            for linea in tablero:
+                for posicion in linea:
+                    animacion += posicion
+                animacion += "\n"
+
+            return animacion
+            
+        def mostrar(self) -> str:
+            return f"Ha salido el número: {self.numero}."
+
+    @app_commands.command(name="dado", description="Lanza un dado. Ganar da x6 de los puntos apostados!")
+    @app_commands.rename(numero_elegido="número")
+    @app_commands.checks.bot_has_permissions(external_emojis=True)
+    @app_commands.describe(numero_elegido="Elige un número del dado.", apuesta="Cantidad de puntos que quieres apostar. Apuesta mínima: 1.")
+    async def dado(self, interaction: discord.Interaction, apuesta: app_commands.Range[int, 1], numero_elegido: app_commands.Range[int, 1, 6]):
+        # Hacer la consulta.
+        puntos_disponibles = await self.consultar_puntos(interaction.guild_id, interaction.user.id)
+
+        if apuesta > puntos_disponibles:
+            await interaction.response.send_message("No tienes suficientes puntos para jugar.", ephemeral=True)
+            return
+
+        lanzamiento = discord.Embed(color=self.client.config.embed_color)
+        lanzamiento.set_author(name="Lanzando el dado...", icon_url=self.client.user.display_avatar)
+        await interaction.response.send_message(embed=lanzamiento)
+
+        # Animación del dado.
+        for x in range(4):
+            animacion = ""
+            tablero = [["<:vacio:1028722267984769114>"]*15, ["<:vacio:1028722267984769114>"]*15, ["<:vacio:1028722267984769114>"]*15, ["<:vacio:1028722267984769114>"]*15, ["<:vacio:1028722267984769114>"]*15]
+
+            # Dado en una posición aleatoria.
+            tablero[random.randint(0, 4)][random.randint(0, 14)] = "\\🎲"
+
+            # Crear la cadena con el dibujo.
+            for linea in tablero:
+                for posicion in linea:
+                    animacion += posicion
+                animacion += "\n"
+            
+            lanzamiento.description = animacion
+            await interaction.edit_original_response(embed=lanzamiento)
+            await asyncio.sleep(1)
+
+        numero_ganador = self.numero_dados(random.randint(1, 1))
+
+        if numero_elegido == numero_ganador.numero:
+            await self.actualizar_puntos(interaction.guild_id, interaction.user.id, puntos_disponibles, apuesta * 6)
+            lanzamiento.set_author(name=f"{numero_ganador.mostrar()} Ganas {apuesta * 6} puntos!", icon_url=self.client.user.display_avatar)
+            lanzamiento.description = numero_ganador.dibujar()
+            await interaction.edit_original_response(embed=lanzamiento)
+
+        else:
+            await self.actualizar_puntos(interaction.guild_id, interaction.user.id, puntos_disponibles, apuesta * -1)
+            lanzamiento.set_author(name=f"{numero_ganador.mostrar()} Pierdes {apuesta} puntos.", icon_url=self.client.user.display_avatar)
+            lanzamiento.description = numero_ganador.dibujar()
+            await interaction.edit_original_response(embed=lanzamiento)
 
 async def setup(client: commands.Bot):
     await client.add_cog(apuestas(client))

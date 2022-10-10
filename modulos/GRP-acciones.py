@@ -57,6 +57,7 @@ class acciones(commands.GroupCog, name="accion"):
     # Comando de acción conjunta.
     @app_commands.command(name="interactuar", description="Interactua con otro usuario.")
     @app_commands.describe(user="Usuario con el que quieres interactuar.")
+    @app_commands.rename(accion="acción")
     @app_commands.choices(accion=[
         app_commands.Choice(name="Lanzar beso", value="airkiss"),
         app_commands.Choice(name="Morder", value="bite"),

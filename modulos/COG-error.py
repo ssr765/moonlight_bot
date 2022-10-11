@@ -45,7 +45,7 @@ class error(commands.Cog):
         else:
             embed = discord.Embed(description="Si el error persiste puedes reportarlo al servidor oficial de moonlight\\🌙 para ayudar a mejorar el bot.", color=0xFF0000)
             embed.set_author(name="El comando ha fallado.", icon_url=self.client.user.display_avatar)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             print(f"> {Fore.RED}⚠  Error en el comando '{interaction.command.name}': {error}{Fore.RESET}")
 
 async def setup(client: commands.Bot):

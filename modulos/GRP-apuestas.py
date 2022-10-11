@@ -317,7 +317,7 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
             await interaction.edit_original_response(embed=lanzamiento)
             await asyncio.sleep(1)
 
-        numero_ganador = self.numero_dados(random.randint(1, 1))
+        numero_ganador = self.numero_dados(random.randint(1, 6))
 
         if numero_elegido == numero_ganador.numero:
             await self.actualizar_puntos(interaction.guild_id, interaction.user.id, puntos_disponibles, apuesta * 6)

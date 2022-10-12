@@ -12,7 +12,7 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
         super().__init__()
         self.client = client
 
-    async def consultar_puntos(self, servidor, usuario):
+    async def consultar_puntos(self, servidor, usuario, registrar = True):
         # Cogiendo una conexión de la pool.
         async with self.client.pool.acquire() as conn:
             async with conn.cursor() as cursor:
@@ -30,10 +30,14 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
                 consulta = cursor.fetchall()
 
                 # Si no está registrado lo registra.
-                if len(consulta.result()) == 0:
+                if len(consulta.result()) == 0 and registrar == True:
                     await self.registrar(servidor, usuario)
                     await cursor.execute(sql_query)
                     consulta = cursor.fetchall()
+                
+                # En caso de que un usuario intente ver los puntos de un usuario no registrado.
+                elif len(consulta.result()) == 0 and registrar == False:
+                    return None
                 
                 consulta = consulta.result()[0][0]
 
@@ -127,11 +131,22 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
             await self.actualizar_puntos(interaction.guild_id, interaction.user.id, puntos_disponibles, apuesta * -1)
             await interaction.response.send_message(f"{cara_ganadora.mostrar()} Pierdes {apuesta} puntos.")
 
-    @app_commands.command(name="puntos", description="Consulta tus puntos.")
-    async def puntos(self, interaction: discord.Interaction):
-        # Hacer la consulta.
-        puntos_disponibles = await self.consultar_puntos(interaction.guild_id, interaction.user.id)
-        await interaction.response.send_message(f"Tienes {puntos_disponibles} puntos.")
+    @app_commands.command(name="puntos", description="Consulta tus puntos o los de otro usuario.")
+    @app_commands.describe(usuario="Usuario del qual quieres ver sus puntos.")
+    async def puntos(self, interaction: discord.Interaction, usuario: discord.Member = None):
+        if usuario != None:
+            puntos_disponibles = await self.consultar_puntos(interaction.guild_id, usuario.id, False)
+
+            # Habrá devuelto en mensaje de que el usuario no tiene puntos.
+            if puntos_disponibles == None:
+                await interaction.response.send_message(f"``{self.client.get_user(usuario.id)}`` no tiene puntos en este servidor. ")
+                
+            else:
+                await interaction.response.send_message(f"``{usuario}`` tiene {puntos_disponibles} puntos.")
+
+        else:
+            puntos_disponibles = await self.consultar_puntos(interaction.guild_id, interaction.user.id)
+            await interaction.response.send_message(f"Tienes {puntos_disponibles} puntos.")
 
     @app_commands.command(name="diario", description=f"Consigue puntos diariamente.")
     @app_commands.checks.cooldown(1, 86400, key=lambda i: (i.guild_id, i.user.id))
@@ -330,6 +345,56 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
             lanzamiento.set_author(name=f"{numero_ganador.mostrar()} Pierdes {apuesta} puntos.", icon_url=self.client.user.display_avatar)
             lanzamiento.description = numero_ganador.dibujar()
             await interaction.edit_original_response(embed=lanzamiento)
+
+    @app_commands.command(name="clasificación", description="Muestra la clasificación de puntos del servidor.")
+    async def clasificacion(self, interaction: discord.Interaction):
+        # Cogiendo una conexión de la pool.
+        async with self.client.pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                sql_query = f"""
+                SELECT usuario, puntos
+                FROM moonlight.puntos
+                INNER JOIN usuarios
+                ON puntos.usuarioID = usuarios.ID
+                WHERE servidorID = (
+                    SELECT ID
+                    FROM servidores
+                    WHERE servidor = '{interaction.guild_id}'
+                )
+                LIMIT 10;"""
+                await cursor.execute(sql_query)
+                # ((usuario, puntos), ...)
+                consulta = await cursor.fetchall()
+
+            contador = 1
+            leaderboard = ""
+            for x in consulta:
+                # Número de la clasificación.
+                if contador == 1:
+                    leaderboard += "\\🥇 "
+
+                elif contador == 2:
+                    leaderboard += "\\🥈 "
+
+                elif contador == 3:
+                    leaderboard += "\\🥉 "
+
+                else:
+                    leaderboard += f"{contador}. "
+                
+                # Usuario.
+                leaderboard += f"``{self.client.get_user(int(x[0]))}`` -  {x[1]:,} puntos.\n"
+                contador += 1
+
+            embed = discord.Embed(description=leaderboard if leaderboard != "" else "*No hay ningún registro en la clasificación.*", color=self.client.config.embed_color)
+
+            # Añadir icono del server si tiene.
+            if interaction.guild.icon != None:
+                embed.set_author(icon_url=interaction.guild.icon.url, name=f"Clasificación de {interaction.guild.name}")
+            else:
+                embed.set_author(name=f"Clasificación de {interaction.guild.name}")
+
+            await interaction.response.send_message(embed=embed)
 
 async def setup(client: commands.Bot):
     await client.add_cog(apuestas(client))

@@ -361,6 +361,7 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
                     FROM servidores
                     WHERE servidor = '{interaction.guild_id}'
                 )
+                ORDER BY puntos DESC
                 LIMIT 10;"""
                 await cursor.execute(sql_query)
                 # ((usuario, puntos), ...)

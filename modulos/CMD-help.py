@@ -15,14 +15,16 @@ class help(commands.Cog):
     @app_commands.rename(modulo="módulo")
     @app_commands.describe(modulo="Introduce el módulo sobre el que quieres obtener ayuda.")
     async def help(self, interaction: discord.Interaction, modulo: str = None):
-        # Separamos los comandos y los grupos.
-        for item in self.client.tree.get_commands():
-            # Identificar el tipo de cada cosa en la lista para separarlos.
-            if type(item) == app_commands.commands.Command:
-                self.comandos["comandos"].append({"name": item.name, "description": item.description})
-            
-            elif type(item) == app_commands.commands.Group:
-                self.comandos["modulos"].append({"name": item.name, "description": item.description, "comandos": [{"name": command.name, "description": command.description} for command in item.commands]})
+        # Evitar que se dupliquen los comandos.
+        if self.comandos == {"comandos": [], "modulos": []}:
+            # Separamos los comandos y los grupos.
+            for item in self.client.tree.get_commands():
+                # Identificar el tipo de cada cosa en la lista para separarlos.
+                if type(item) == app_commands.commands.Command:
+                    self.comandos["comandos"].append({"name": item.name, "description": item.description})
+                
+                elif type(item) == app_commands.commands.Group:
+                    self.comandos["modulos"].append({"name": item.name, "description": item.description, "comandos": [{"name": command.name, "description": command.description} for command in item.commands]})
 
         # Crear embed
         embed = discord.Embed(color=self.client.config.embed_color)

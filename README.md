@@ -5,6 +5,7 @@ moonlight bot es un bot para Discord programado en Python.
 ## Comandos disponibles
 - /ping
 - /help (módulo (Opcional): [módulo])
+- /soporte
 
 ### Animales - Foto de un gato o un perro aleatorios.
 - /animales gato
@@ -19,10 +20,11 @@ moonlight bot es un bot para Discord programado en Python.
 - /decidir pregunta (pregunta: [pregunta])
 
 ### Apuestas - Apuesta puntos en el servidor.
-- /apuesta puntos
+- /apuesta puntos (usuario (Opcional): [usuario])
 - /apuesta diario
 - /apuesta moneda (apuesta: [Mínimo 1]) (lado: [Cara o Cruz])
 - /apuesta ruleta (apuesta: [Mínimo 1]) (color: [Verde, Rojo o Negro] o tipo: [Par o Impar] o número: [número del 0 al 36])
 - /apuesta dado (apuesta: [Mínimo 1]) (número: [número del 1 al 6])
+- /apuesta clasificación
 
-Thanks to [Nhu Lam](https://www.artstation.com/nhulam) for letting me use his [fanart](https://www.artstation.com/artwork/a5KDk) as the bot's icon.
+Gracias a [Nhu Lam](https://www.artstation.com/nhulam) por dejarme usar su [fanart](https://www.artstation.com/artwork/a5KDk) como icono del bot.

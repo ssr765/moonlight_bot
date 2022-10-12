@@ -5,7 +5,7 @@ from discord import app_commands
 import random
 import asyncio
 
-class decidir(commands.GroupCog, name="decidir"):
+class decidir(commands.GroupCog, name="decidir", description="Preguntale algo al bot, el responderá."):
     def __init__(self, client: commands.Bot):
         super().__init__()
         self.client = client

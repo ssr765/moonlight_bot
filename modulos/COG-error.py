@@ -41,6 +41,20 @@ class error(commands.Cog):
             embed.add_field(name="Permisos necesarios faltantes:", value=f"{','.join('``' + permiso + '``' for permiso in error.missing_permissions)}")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
+        # Comando fallido por falta de permisos.
+        elif isinstance(error, app_commands.CommandNotFound):
+            embed = discord.Embed(description="El comando está deshabilitado actualmente.", color=0xFFFF00)
+            embed.set_author(name="Comando deshabilitado", icon_url=self.client.user.display_avatar)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+            # Sincronizar comandos, ya que si se da el error no lo están.
+            self.client.synced = True
+            for server in self.client.guilds:
+                self.client.tree.copy_global_to(guild=server)
+                await self.client.tree.sync(guild=server)
+            print(f"> {Fore.YELLOW}⚠  Se ha intentado usar el comando '{error.name}', el cual está deshabilitado.{Fore.RESET}")
+            print("> Comandos sincronizados con Discord.")
+
         # Comando fallido por otros motivos
         else:
             embed = discord.Embed(description="Si el error persiste puedes reportarlo al servidor oficial de moonlight\\🌙 para ayudar a mejorar el bot.", color=0xFF0000)

@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-class acciones(commands.GroupCog, name="accion"):
+class acciones(commands.GroupCog, name="accion", description="Interactúa con miembros del servidor con gifs de anime."):
     def __init__(self, client: commands.Bot):
         super().__init__()
         self.client = client
@@ -16,8 +16,8 @@ class acciones(commands.GroupCog, name="accion"):
         self.negaciones = d["negaciones"]
 
     # Comando de acción propia.
-    @app_commands.command(name="expresion", description="Muestra tu expresión.")
-    @app_commands.describe(expresion="Usuario al que quieres lanzarle el beso.")
+    @app_commands.command(name="expresión", description="Muestra tu expresión.")
+    @app_commands.describe(expresion="Expresión que deseas mostrar.")
     @app_commands.rename(expresion="expresión")
     @app_commands.choices(expresion=[
         app_commands.Choice(name="Enrojecerse", value="blush"),
@@ -42,7 +42,8 @@ class acciones(commands.GroupCog, name="accion"):
         app_commands.Choice(name="Pedir disculpas", value="sorry"),
         app_commands.Choice(name="Bostezar", value="yawn"),
         app_commands.Choice(name="Afirmar", value="yes"),
-        ])
+        ]
+    )
     async def expresion(self, interaction: discord.Interaction, expresion: app_commands.Choice[str]):
         # Imágen de una acción propia.
         async with self.client.session.get(f"https://api.otakugifs.xyz/gif?reaction={expresion.value}") as resp:
@@ -55,7 +56,7 @@ class acciones(commands.GroupCog, name="accion"):
 
 
     # Comando de acción conjunta.
-    @app_commands.command(name="interactuar", description="Interactua con otro usuario.")
+    @app_commands.command(name="interactuar", description="Interactúa con otro usuario.")
     @app_commands.describe(user="Usuario con el que quieres interactuar.")
     @app_commands.rename(accion="acción")
     @app_commands.choices(accion=[
@@ -72,7 +73,8 @@ class acciones(commands.GroupCog, name="accion"):
         app_commands.Choice(name="Hacer pat pat", value="pat"),
         app_commands.Choice(name="Abofetear", value="slap"),
         app_commands.Choice(name="Golpear", value="smack"),
-        ])
+        ]
+    )
     async def interactuar(self, interaction: discord.Interaction, accion: app_commands.Choice[str], user: discord.Member):
         # Imágen de una acción conjunta.
         async with self.client.session.get(f"https://api.otakugifs.xyz/gif?reaction={accion.value}") as resp:

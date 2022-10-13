@@ -8,62 +8,106 @@ class help(commands.Cog):
         super().__init__()
         self.client = client
     
-        # Lista de comandos/módulos
-        self.comandos = {"comandos": [], "modulos": []}
+    def generar_comandos(self, arbol_comandos):
+        comandos = []
+        modulos = []
+        # get_commands() devuelve una lista de comandos y módulos del servidor.
+        # Si se especifica guild devuelve los comandos y módulos EXCLUSIVOS del
+        # servidor especificado.
+        for item in arbol_comandos:
+            if type(item) == app_commands.commands.Command:
+                comandos.append(item)
+
+            elif type(item) == app_commands.commands.Group:
+                modulos.append(item)
+                for c in item.commands:
+                    comandos.append(c)
+
+        return comandos, modulos
+
+    async def comandos_autocompletado(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        comandos, modulos = self.generar_comandos(self.client.tree.get_commands() + self.client.tree.get_commands(guild=interaction.guild))
+        comandos = [c.name for c in comandos]
+        return [app_commands.Choice(name=comando, value=comando) for comando in comandos if current.lower() in comando.lower()]
+
+    async def modulos_autocompletado(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        comandos, modulos = self.generar_comandos(self.client.tree.get_commands() + self.client.tree.get_commands(guild=interaction.guild))
+        modulos = [m.name for m in modulos]
+        return [app_commands.Choice(name=modulo, value=modulo) for modulo in modulos if current.lower() in modulo.lower()]
 
     @app_commands.command(name="help", description=f"Muestra ayuda sobre los comandos de moonlight🌙.")
-    @app_commands.rename(modulo="módulo")
-    @app_commands.describe(modulo="Introduce el módulo sobre el que quieres obtener ayuda.")
-    async def help(self, interaction: discord.Interaction, modulo: str = None):
-        # Evitar que se dupliquen los comandos.
-        if self.comandos == {"comandos": [], "modulos": []}:
-            # Separamos los comandos y los grupos.
-            for item in self.client.tree.get_commands():
-                # Identificar el tipo de cada cosa en la lista para separarlos.
-                if type(item) == app_commands.commands.Command:
-                    self.comandos["comandos"].append({"name": item.name, "description": item.description})
-                
-                elif type(item) == app_commands.commands.Group:
-                    self.comandos["modulos"].append({"name": item.name, "description": item.description, "comandos": [{"name": command.name, "description": command.description} for command in item.commands]})
+    @app_commands.autocomplete(comando_deseado=comandos_autocompletado, modulo_deseado=modulos_autocompletado)
+    @app_commands.rename(modulo_deseado="módulo", comando_deseado="comando")
+    @app_commands.describe(comando_deseado="Introduce el comando sobre el que quieres obtener más detalles.", modulo_deseado="Introduce el módulo sobre el que quieres obtener ayuda.")
+    async def help(self, interaction: discord.Interaction, comando_deseado: str = None, modulo_deseado: str = None):
+        comandos, modulos = self.generar_comandos(self.client.tree.get_commands() + self.client.tree.get_commands(guild=interaction.guild))
 
-        # Crear embed
-        embed = discord.Embed(color=self.client.config.embed_color)
+        if comando_deseado == None and modulo_deseado == None or comando_deseado != None and modulo_deseado != None:
+            embed = discord.Embed(description="Usa ``/help [módulo: nombre del módulo]`` para ver los comandos que contiene un módulo.\nUsa ``/help [comando: nombre del comando]`` para obtener detalles acerca de este.", color=self.client.config.embed_color)
+            embed.set_author(name="Ayuda de moonlight🌙", icon_url=self.client.user.display_avatar)
+            embed.add_field(name="Comandos generales", value=f"```{', '.join([command.name for command in comandos if command.parent == None])}```", inline=False)
+            embed.add_field(name="Módulos disponibles", value=f"```{', '.join([cog.name for cog in modulos])}```", inline=False)
 
-        # Si no se especifica ningún módulo muestra todos los comandos y los módulos.
-        if modulo == None:
-            embed.set_author(name="Ayuda", icon_url=self.client.user.display_avatar)
-        
-            # Generamos la información de los comandos disponibles.
-            msg_comandos = ""
-            for comando in self.comandos["comandos"]:
-                msg_comandos += f"``{comando['name']}`` - {comando['description']}\n"
-            embed.add_field(name="Comandos principales", value=msg_comandos, inline=False)
+        # Mensaje de comandos
+        elif comando_deseado != None and modulo_deseado == None:
+            try:
+                # Escoje el comando que está en la posición donde coincide el nombre del comando.
+                comando = comandos[[command.name for command in comandos].index(comando_deseado)]
+
+            except ValueError:
+                embed = discord.Embed(color=0xff0000)
+                embed.set_author(name=f"El comando {comando_deseado.lower()} no existe.", icon_url=self.client.user.display_avatar)
+                await interaction.response.send_message(embed=embed)
+                return
+
+            embed = discord.Embed(color=self.client.config.embed_color)
+            embed.set_author(name=f"Ayuda de /{comando.parent.name + ' ' if comando.parent != None else ''}{comando.name}", icon_url=self.client.user.display_avatar)
+            embed.add_field(name="Descripción", value=f"> {comando.description}", inline=False)
             
-            # Generamos la información de los módulos disponibles.
-            msg_grupos = ""
-            for grupo in self.comandos["modulos"]:
-                msg_grupos += f"``{grupo['name']}`` - {grupo['description']}\n"
-            embed.add_field(name="Módulos", value=msg_grupos, inline=False)
-        
-        # Si se especifica un módulo lo busca en una lista con los nombres de los módulos.
-        elif modulo.lower() in [grupo["name"] for grupo in self.comandos["modulos"]]:
-            embed.set_author(name=f"Ayuda de {modulo}", icon_url=self.client.user.display_avatar)
-        
-            # Generamos la información de los comandos disponibles.
-            msg_comandos = ""
+            if comando.parent != None:
+                embed.set_footer(text=f"Para más información del módulo {comando.parent.name} usa /help módulo:{comando.parent.name}.")
 
-            # Para encontrar a que módulo pertenecen los comandos busca el índice de una lista con los nombres de los módulos
-            # y busca en los comandos de este.
-            for comando in self.comandos["modulos"][[grupo["name"] for grupo in self.comandos["modulos"]].index(modulo)]["comandos"]:
-                msg_comandos += f"``{comando['name']}`` - {comando['description']}\n"
-            embed.add_field(name="Comandos principales", value=msg_comandos, inline=False)
+            if len(comando.parameters) >= 1:
+                parametros = ""
+                for parameter in comando.parameters:
+                    if parameter.required:
+                        parametros += "```" + parameter.display_name + " - " + parameter.description + "```\n"
 
-        # Si el módulo especificado es incorrecto lo dice.
-        else:
-            embed.color = 0xff0000 # Rojo
-            embed.set_author(name=f"{modulo} no es un módulo válido.", icon_url=self.client.user.display_avatar)
+                    else:
+                        parametros += "```(Opcional) " + parameter.display_name + " - " + parameter.description + "```\n"
 
-        # Manda el embed.
+                embed.add_field(name="Parametros", value=parametros)
+            
+            if comando.nsfw == True:
+                embed.add_field(name="Comando con restricción de edad", value="> \\✅", inline=False)
+
+        # Mensaje de módulos
+        elif comando_deseado == None and modulo_deseado != None:
+            try:
+                # Escoje el módulo que está en la posición donde coincide el nombre del módulo.
+                modulo = modulos[[cog.name for cog in modulos].index(modulo_deseado)]
+
+            except ValueError:
+                embed = discord.Embed(color=0xff0000)
+                embed.set_author(name=f"El modulo {modulo_deseado.lower()} no existe.", icon_url=self.client.user.display_avatar)
+                await interaction.response.send_message(embed=embed)
+                return
+
+            embed = discord.Embed(color=self.client.config.embed_color)
+            embed.set_author(name=f"Ayuda de /{modulo.name} (comando)", icon_url=self.client.user.display_avatar)
+            embed.add_field(name="Descripción", value=f"> {modulo.description}", inline=False)
+            embed.set_footer(text=f"Para ver detalles de un comando usa /help comando:(comando deseado).")
+            
+            if len(modulo.commands) >= 1:
+                lista_de_comandos = ""
+                for comando in modulo.commands:
+                    lista_de_comandos += "```" + comando.name + " - " + comando.description + "```\n"
+
+                embed.add_field(name=f"Comandos de {modulo.name}", value=lista_de_comandos)
+            
+            else:
+                embed.add_field(name=f"Comandos de {modulo.name}", value="> *Todavía no hay comandos en este módulo.*")
+
         await interaction.response.send_message(embed=embed)
 
 async def setup(client: commands.Bot):

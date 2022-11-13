@@ -24,8 +24,8 @@ class client(commands.Bot):
             command_prefix = commands.when_mentioned_or(config.prefix),
             intents = discord.Intents.all(),
             activity = discord.Streaming(
-            name="una nueva era",
-            url="http://www.twitch.tv/ssr765"
+                name="una nueva era",
+                url="http://www.twitch.tv/ssr765"
             )
         )
 
@@ -48,7 +48,8 @@ class client(commands.Bot):
     async def on_ready(self):
         asciiart()
         print(f"> {self.user} {Fore.GREEN}conectado{Fore.RESET}")
-        print(f"> Discord.py version: {discord.__version__}")
+        print(f"> Ejecutandose en {Fore.BLUE}{len(self.guilds)} servidores{Fore.RESET}")
+        print(f"> Versión de Discord.py: {discord.__version__}")
         for x in self.uncharged_modules:
             print(x)
     

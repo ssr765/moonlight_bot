@@ -8,7 +8,11 @@ aiohttp==3.8.1
 # Asyncronous MySQL
 PyMySQL==1.0.2
 aiomysql==0.1.1
+cryptography==38.0.3
 
 # Other stuff
 colorama==0.4.5
 python-dotenv==0.20.0
+
+# Asyncronous Riot Games API
+pantheon==2.0.0

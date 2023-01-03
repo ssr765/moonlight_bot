@@ -5,7 +5,7 @@ from discord.ext import commands
 from discord import app_commands
 
 class acciones(commands.GroupCog, name="accion", description="Interactúa con miembros del servidor con gifs de anime."):
-    def __init__(self, client: commands.Bot):
+    def __init__(self, client: commands.Bot) -> None:
         super().__init__()
         self.client = client
 
@@ -93,5 +93,6 @@ class acciones(commands.GroupCog, name="accion", description="Interactúa con mi
         sneeze, stare, stop, surprised, sweat, thumbsup,
         tickle, tired, wave, wink, woah, yay."""
 
-async def setup(client: commands.Bot):
+async def setup(client: commands.Bot) -> None:
+    """Configura el módulo en el bot."""
     await client.add_cog(acciones(client))

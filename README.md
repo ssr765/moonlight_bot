@@ -2,29 +2,13 @@
 
 moonlight bot es un bot para Discord programado en Python.
 
-## Comandos disponibles
-- /ping
-- /help (módulo (Opcional): [módulo])
-- /soporte
-
-### Animales - Foto de un gato o un perro aleatorios.
-- /animales gato
-- /animales perro
-
-### Acciones - Interactua con otros usuarios.
-- /accion expresion (expresión: [Enrojecerse, Celebrar, ...])
-- /accion interactuar (acción: [Abrazar, Besar, ...]) (usuario: [usuario])
-
-### Decidir - Hazle una pregunta al bot.
-- /decidir elegir (opciones: [opción1; opción2; opción3; ...])
-- /decidir pregunta (pregunta: [pregunta])
-
-### Apuestas - Apuesta puntos en el servidor.
-- /apuesta puntos (usuario (Opcional): [usuario])
-- /apuesta diario
-- /apuesta moneda (apuesta: [Mínimo 1]) (lado: [Cara o Cruz])
-- /apuesta ruleta (apuesta: [Mínimo 1]) (color: [Verde, Rojo o Negro] o tipo: [Par o Impar] o número: [número del 0 al 36])
-- /apuesta dado (apuesta: [Mínimo 1]) (número: [número del 1 al 6])
-- /apuesta clasificación
+## Comandos
+Para ver los comandos disponibles usa el siguiente comando:
+```/help```
 
 Gracias a [Nhu Lam](https://www.artstation.com/nhulam) por dejarme usar su [fanart](https://www.artstation.com/artwork/a5KDk) como icono del bot.
+
+<p align="center">
+  <img src="https://img.shields.io/discord/855121722642137098?color=5865f2&label=Moonlight%F0%9F%8C%99%20support&logo=discord&logoColor=ffffff&style=for-the-badge">
+  <img src="https://img.shields.io/github/license/ssr765/moonlight_bot?style=for-the-badge">
+</p>

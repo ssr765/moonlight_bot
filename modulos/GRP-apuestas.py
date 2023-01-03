@@ -8,7 +8,7 @@ from discord import app_commands
 from aiomysql import IntegrityError
 
 class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apostar puntos del servidor."):
-    def __init__(self, client: commands.Bot):
+    def __init__(self, client: commands.Bot) -> None:
         super().__init__()
         self.client = client
 
@@ -397,5 +397,6 @@ class apuestas(commands.GroupCog, name="apuestas", description="Juegos para apos
 
             await interaction.response.send_message(embed=embed)
 
-async def setup(client: commands.Bot):
+async def setup(client: commands.Bot) -> None:
+    """Configura el módulo en el bot."""
     await client.add_cog(apuestas(client))

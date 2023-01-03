@@ -6,7 +6,7 @@ import random
 import asyncio
 
 class decidir(commands.GroupCog, name="decidir", description="Preguntale algo al bot, el responderá."):
-    def __init__(self, client: commands.Bot):
+    def __init__(self, client: commands.Bot) -> None:
         super().__init__()
         self.client = client
 
@@ -89,5 +89,6 @@ class decidir(commands.GroupCog, name="decidir", description="Preguntale algo al
         embed.set_author(icon_url=self.client.user.display_avatar, name="Tengo la respuesta")
         await interaction.edit_original_response(embed=embed)
 
-async def setup(client: commands.Bot):
+async def setup(client: commands.Bot) -> None:
+    """Configura el módulo en el bot."""
     await client.add_cog(decidir(client))

@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 
 class animales(commands.GroupCog, name="animales", description="Envía imágenes de animales."):
-    def __init__(self, client: commands.Bot):
+    def __init__(self, client: commands.Bot) -> None:
         super().__init__()
         self.client = client
 
@@ -29,5 +29,6 @@ class animales(commands.GroupCog, name="animales", description="Envía imágenes
         embed.set_footer(text=self.client.user, icon_url=self.client.user.display_avatar)
         await interaction.response.send_message(embed=embed)
 
-async def setup(client: commands.Bot):
+async def setup(client: commands.Bot) -> None:
+    """Configura el módulo en el bot."""
     await client.add_cog(animales(client))

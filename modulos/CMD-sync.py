@@ -4,7 +4,7 @@ from discord.ext import commands
 # Comando para actualizar los comandos en todos los servidores en los que este
 # el bot, solo lo pueden usar los owners del bot.
 class sync(commands.Cog):
-    def __init__(self, client: commands.Bot):
+    def __init__(self, client: commands.Bot) -> None:
         super().__init__()
         self.client = client
 
@@ -18,5 +18,6 @@ class sync(commands.Cog):
         await ctx.send("Comandos sincronizados con Discord.")
         print("> Comandos sincronizados con Discord.")
 
-async def setup(client: commands.Bot):
+async def setup(client: commands.Bot) -> None:
+    """Configura el módulo en el bot."""
     await client.add_cog(sync(client))

@@ -7,6 +7,7 @@ from discord import app_commands
 from pantheon.pantheon import Pantheon
 from pantheon.utils.exceptions import NotFound
 
+
 load_dotenv()
 API_KEY = os.getenv("LOL_KEY")
 
@@ -27,6 +28,7 @@ COLAS = {
     "RANKED_FLEX_SR": "Flexible"
 }
 
+
 class invocador:
     """Contiene la información del jugador."""
     def __init__(self, data) -> None:
@@ -35,6 +37,7 @@ class invocador:
         self.nivel = data['summonerLevel']
         self.url_icono = f"https://raw.communitydragon.org/latest/game/assets/ux/summonericons/profileicon{self.icono}.png"
         self.id = data['id']
+
 
 class clasificacion:
     """Contiene toda la información de la clasificación del jugador."""
@@ -58,11 +61,14 @@ class clasificacion:
 
         self.nombre_liga = None
 
-class lol(commands.GroupCog, name="lol", description="..."):
-    def __init__(self, client: commands.Bot):
+
+class lol(commands.GroupCog, name="lol", description="Comandos de cosas relacionadas con League of Legends"):
+    """Módulo de comandos relacionados con League of Legends."""
+    def __init__(self, client: commands.Bot) -> None:
         super().__init__()
         self.client = client
         self.panth = Pantheon('euw1', API_KEY)
+    
     
     @app_commands.command(name="elo", description="Manda datos sobre tu clasificación en el lol.")
     @app_commands.choices(server=[
@@ -84,7 +90,10 @@ class lol(commands.GroupCog, name="lol", description="..."):
     @app_commands.describe(server="Servidor en el que juegas", summoner="Tu nombre de invocador", cola="Sobre qué cola quieres saber tu rango?")
     @app_commands.checks.cooldown(2, 5, key=lambda i: (i.guild_id, i.user.id))
     async def elo(self, interaction: discord.Interaction, server: app_commands.Choice[str], summoner: str, cola: app_commands.Choice[str]):
+        """Comando que muestra estadísticas de League of Legends sobre el
+        jugador introducido."""
         await interaction.response.defer(thinking=True)
+
         # Peticiones a la API
         self.panth.set_server(server.value)
         try:
@@ -94,6 +103,7 @@ class lol(commands.GroupCog, name="lol", description="..."):
             await interaction.followup.send(f"No se ha encontrado el invocador {summoner} en {server.name}.")
         
         else:
+            # Busca la clasificación del jugador.
             player = invocador(player_data)
             ranked_data = await self.panth.get_league_position(player.id)
             clasificado = False
@@ -101,26 +111,29 @@ class lol(commands.GroupCog, name="lol", description="..."):
                 if cola.value == queue['queueType']:
                     clasificado = True
                     ranked = clasificacion(queue)
+                    # Busca el nombre de la liga.
                     liga_data = await self.panth.get_league_by_id(queue['leagueId'])
                     ranked.nombre_liga = liga_data['name']
 
+                    # Crea el embed de la clasificación y lo manda.
                     file = discord.File(ranked.imagen, "rank.png")
                     embed = discord.Embed(color=ranked.color)
-                    embed.set_author(name=f"{player.nombre}", icon_url=player.url_icono)
+                    embed.set_author(name=f"{player.nombre}  ·  Nivel {player.nivel}", icon_url=player.url_icono)
                     embed.set_thumbnail(url="attachment://rank.png")
                     embed.add_field(name=f"{ranked.cola}", value=f"> **{ranked.division} {ranked.liga}** - {ranked.lp} LP\n> {ranked.nombre_liga}", inline=True)
                     embed.add_field(name="Winrate", value=f"> {ranked.victorias}V {ranked.derrotas}D\n> {ranked.winrate}% WR", inline=True)
-                    embed.set_footer(text=f"Nivel del invocador: {player.nivel}")
                     await interaction.followup.send(embed=embed, file=file)
             
             if not clasificado:
+                # Crea el embed de jugador no clasificado y lo manda.
                 file = discord.File("img/lol/Emblem_Unranked.png", "rank.png")
                 embed = discord.Embed(color=0xFF0000)
-                embed.set_author(name=f"{player.nombre}", icon_url=player.url_icono)
+                embed.set_author(name=f"{player.nombre} · Nivel {player.nivel}", icon_url=player.url_icono)
                 embed.set_thumbnail(url="attachment://rank.png")
                 embed.add_field(name=f"{cola.name}", value=f"> *Sin clasificar*", inline=True)
-                embed.set_footer(text=f"Nivel del invocador: {player.nivel}")
                 await interaction.followup.send(embed=embed, file=file)
 
-async def setup(client: commands.Bot):
+
+async def setup(client: commands.Bot) -> None:
+    """Configura el módulo en el bot."""
     await client.add_cog(lol(client))

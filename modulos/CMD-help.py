@@ -1,14 +1,17 @@
+from typing import Tuple
+
 import discord
 from discord.ext import commands
 from discord import app_commands
 
+
 # Comando que muestra la latencia del bot.
 class help(commands.Cog):
-    def __init__(self, client: commands.Bot):
+    def __init__(self, client: commands.Bot) -> None:
         super().__init__()
         self.client = client
     
-    def generar_comandos(self, arbol_comandos):
+    def generar_comandos(self, arbol_comandos) -> Tuple[list, list]:
         comandos = []
         modulos = []
         # get_commands() devuelve una lista de comandos y módulos del servidor.
@@ -26,11 +29,13 @@ class help(commands.Cog):
         return comandos, modulos
 
     async def comandos_autocompletado(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        # Función de autocompletado de los comandos.
         comandos, modulos = self.generar_comandos(self.client.tree.get_commands() + self.client.tree.get_commands(guild=interaction.guild))
         comandos = [c.name for c in comandos]
         return [app_commands.Choice(name=comando, value=comando) for comando in comandos if current.lower() in comando.lower()]
 
     async def modulos_autocompletado(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        # Función de autocompletado de los módulos.
         comandos, modulos = self.generar_comandos(self.client.tree.get_commands() + self.client.tree.get_commands(guild=interaction.guild))
         modulos = [m.name for m in modulos]
         return [app_commands.Choice(name=modulo, value=modulo) for modulo in modulos if current.lower() in modulo.lower()]
@@ -110,5 +115,6 @@ class help(commands.Cog):
 
         await interaction.response.send_message(embed=embed)
 
-async def setup(client: commands.Bot):
+async def setup(client: commands.Bot) -> None:
+    """Configura el módulo en el bot."""
     await client.add_cog(help(client))

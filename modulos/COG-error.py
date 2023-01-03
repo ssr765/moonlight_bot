@@ -6,7 +6,7 @@ from discord import app_commands
 from colorama import Fore
 
 class error(commands.Cog):
-    def __init__(self, client: commands.Bot):
+    def __init__(self, client: commands.Bot) -> None:
         super().__init__()
         self.client = client
 
@@ -62,5 +62,6 @@ class error(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             print(f"> {Fore.RED}⚠  Error en el comando '{interaction.command.name}': {error}{Fore.RESET}")
 
-async def setup(client: commands.Bot):
+async def setup(client: commands.Bot) -> None:
+    """Configura el módulo en el bot."""
     await client.add_cog(error(client))
